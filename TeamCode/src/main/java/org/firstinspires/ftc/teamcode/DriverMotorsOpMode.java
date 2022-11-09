@@ -63,12 +63,11 @@ public class DriverOpMode extends LinearOpMode {
             TODO: DETERMINE WHAT BUTTON WILL RAISE GRAB ARM
             Extend Motor Code goes here
             */
-            extendPower = 0;
 
             // Send calculated power to wheels
             leftDrive.setPower(leftPower);
             rightDrive.setPower(rightPower);
-            extendDrive.setPower(extendPower);
+            //extendDrive.setPower(extendPower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
