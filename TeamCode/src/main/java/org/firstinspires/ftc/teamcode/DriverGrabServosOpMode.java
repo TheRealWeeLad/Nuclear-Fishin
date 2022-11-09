@@ -11,56 +11,42 @@ public class DriverGrabServosOpMode extends LinearOpMode {
     // Define class members
     Servo   servo;
     double  position = (MAX_POS - MIN_POS) / 2; // Start at halfway position
-    boolean rampUp = true;
-
 
     @Override
     public void runOpMode() {
 
-        // Connect to servo (Assume Robot Left Hand)
-        // Change the text in quotes to match any servo name on your robot.
-        servo = hardwareMap.get(Servo.class, "left_hand");
+        // Find servo
+        servo = hardwareMap.get(Servo.class, "grabber");
 
-        // Wait for the start button
-        telemetry.addData(">", "Press Start to scan Servo." );
-        telemetry.update();
+        // Save current pressed state of X and B buttons
+        boolean xPrevState = false;
+        boolean xCurrState = false;
+        boolean bPrevState = false;
+        boolean bCurrState = false;
+
+        // Wait for start
         waitForStart();
 
-
-        // Scan servo till stop pressed.
         while(opModeIsActive()){
+            // Press X button to close hand
+            xCurrState = gamepad2.x;
+            if (xCurrState && xCurrState != xPrevState) {
+                // CLOSE SERVO
+            }
+            // Update Previous State
+            xPrevState = xCurrState;
 
-            // slew the servo, according to the rampUp (direction) variable.
-            if (rampUp) {
-                // Keep stepping up until we hit the max value.
-                position += INCREMENT ;
-                if (position >= MAX_POS ) {
-                    position = MAX_POS;
-                    rampUp = !rampUp;   // Switch ramp direction
-                }
+            // Press B button to open hand
+            bCurrState = gamepad2.b;
+            if (bCurrState && bCurrState != bPrevState) {
+                // OPEN SERVO
             }
-            else {
-                // Keep stepping down until we hit the min value.
-                position -= INCREMENT ;
-                if (position <= MIN_POS ) {
-                    position = MIN_POS;
-                    rampUp = !rampUp;  // Switch ramp direction
-                }
-            }
+            // Update Previous State
+            bPrevState = bCurrState;
 
             // Display the current value
             telemetry.addData("Servo Position", "%5.2f", position);
-            telemetry.addData(">", "Press Stop to end test." );
             telemetry.update();
-
-            // Set the servo to the new position and pause;
-            servo.setPosition(position);
-            sleep(CYCLE_MS);
-            idle();
         }
-
-        // Signal done;
-        telemetry.addData(">", "Done");
-        telemetry.update();
     }
 }
