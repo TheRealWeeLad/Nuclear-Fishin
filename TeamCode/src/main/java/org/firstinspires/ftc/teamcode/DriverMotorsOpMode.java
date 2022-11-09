@@ -59,15 +59,14 @@ public class DriverOpMode extends LinearOpMode {
             leftPower    = Range.clip(drive + turn, -1.0, 1.0);
             rightPower   = Range.clip(drive - turn, -1.0, 1.0);
 
-            /*
-            TODO: DETERMINE WHAT BUTTON WILL RAISE GRAB ARM
-            Extend Motor Code goes here
-            */
+            // Press up and down on d-pad to extend arm
+            double drive = -gamepad2.left_stick_y;
+            extendPower = Range.clip(drive, -1.0, 1.0);
 
             // Send calculated power to wheels
             leftDrive.setPower(leftPower);
             rightDrive.setPower(rightPower);
-            //extendDrive.setPower(extendPower);
+            extendDrive.setPower(extendPower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
