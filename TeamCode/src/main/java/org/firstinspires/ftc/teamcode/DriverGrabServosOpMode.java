@@ -1,22 +1,28 @@
+package org.firstinspires.ftc.teamcode;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name = "Servos", group = "Driving")
-public class DriverGrabServosOpMode extends LinearOpMode {
-
-    static final double MAX_POS =  1.0;
-    static final double MIN_POS =  0.0;
+public class DriveGrabServosOpMode extends LinearOpMode {
 
     // Define class members
-    Servo   servo;
-    double  position = (MAX_POS - MIN_POS) / 2; // Start at halfway position
+    Servo servoLeft;
+    Servo servoRight;
+    
+    // CONSTANTS
+    final double leftPercent = 0.58;
+    final double rightPercent = 0.42;
+    final double leftRestState = 0.48;
+    final double rightRestState = 0.52;
 
     @Override
     public void runOpMode() {
 
         // Find servo
-        servo = hardwareMap.get(Servo.class, "grabber");
+        servoLeft = hardwareMap.get(Servo.class, "grabber_left");
+        servoRight = hardwareMap.get(Servo.class, "grabber_right");
 
         // Save current pressed state of X and B buttons
         boolean xPrevState = false;
@@ -31,7 +37,8 @@ public class DriverGrabServosOpMode extends LinearOpMode {
             // Press X button to close hand
             xCurrState = gamepad2.x;
             if (xCurrState && xCurrState != xPrevState) {
-                // CLOSE SERVO
+                servoLeft.setPosition(leftPercent);
+                servoRight.setPosition(rightPercent);
             }
             // Update Previous State
             xPrevState = xCurrState;
@@ -39,13 +46,14 @@ public class DriverGrabServosOpMode extends LinearOpMode {
             // Press B button to open hand
             bCurrState = gamepad2.b;
             if (bCurrState && bCurrState != bPrevState) {
-                // OPEN SERVO
+                servoLeft.setPosition(leftRestState);
+                servoRight.setPosition(rightRestState);
             }
             // Update Previous State
             bPrevState = bCurrState;
 
             // Display the current value
-            telemetry.addData("Servo Position", "%5.2f", position);
+            telemetry.addData("Current Grab State:", bCurrState);
             telemetry.update();
         }
     }
