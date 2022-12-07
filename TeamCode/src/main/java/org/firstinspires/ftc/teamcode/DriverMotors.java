@@ -18,6 +18,10 @@ public class DriveMotors extends LinearOpMode {
 	Gamepad gamepad1;
 	Gamepad gamepad2;
 	
+	// Set speed of driving as a percent of total speed
+	final double DEFAULT_SPEED = 0.5;
+	double speed = DEFAULT_SPEED;
+	
 	// Determine if OpMode was instantiated or run from Driver Hub
 	boolean instantiated = false;
 	
@@ -31,10 +35,6 @@ public class DriveMotors extends LinearOpMode {
 		gamepad1 = gp1;
 		gamepad2 = gp2;
 		
-		// Motor axles are disaligned, so one must be reversed
-		leftDrive.setDirection(DcMotor.Direction.REVERSE);
-		rightDrive.setDirection(DcMotor.Direction.FORWARD);
-		
 		instantiated = true;
 	}
 
@@ -46,10 +46,12 @@ public class DriveMotors extends LinearOpMode {
 			leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
 			rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
 			extendDrive = hardwareMap.get(DcMotor.class, "extend_drive");
-			
-			// Motor axles are disaligned, so one must be reversed
-			leftDrive.setDirection(DcMotor.Direction.REVERSE);
-			rightDrive.setDirection(DcMotor.Direction.FORWARD);
+		}
+		
+		// Check if turbo is activated
+		speed = DEFAULT_SPEED;
+		if (gamepad1.right_trigger > 0.5) {
+			speed = 1;
 		}
 		
 		// Setup a variable for each motor
@@ -60,8 +62,8 @@ public class DriveMotors extends LinearOpMode {
 		// Combines drive power and turn power in one expression
 		double drive = -gamepad1.left_stick_y;
 		double turn  =  gamepad1.right_stick_x;
-		leftPower	= Range.clip(drive + turn, -1.0, 1.0);
-		rightPower   = Range.clip(drive - turn, -1.0, 1.0);
+		leftPower	= Range.clip(speed * (drive + turn), -1.0, 1.0);
+		rightPower   = Range.clip(speed * (drive - turn), -1.0, 1.0);
 
 		// Tilt left stick forward on 2nd gamepad to extend arm
 		double extend = -gamepad2.left_stick_y;
