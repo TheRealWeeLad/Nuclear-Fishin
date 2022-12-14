@@ -22,6 +22,9 @@ public class DriveMotors extends LinearOpMode {
 	final double DEFAULT_SPEED = 0.5;
 	double speed = DEFAULT_SPEED;
 	
+	// Store current Extend Arm target position
+	int targetPos = 0;
+	
 	// Determine if OpMode was instantiated or run from Driver Hub
 	boolean instantiated = false;
 	
@@ -30,6 +33,9 @@ public class DriveMotors extends LinearOpMode {
 		leftDrive  = left;
 		rightDrive = right;
 		extendDrive = extend;
+		
+		// Set Extending Arm to Position Mode
+		//extendDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		
 		// Initialize gamepads
 		gamepad1 = gp1;
@@ -46,6 +52,9 @@ public class DriveMotors extends LinearOpMode {
 			leftDrive  = hardwareMap.get(DcMotor.class, "left_drive");
 			rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
 			extendDrive = hardwareMap.get(DcMotor.class, "extend_drive");
+			
+			// Set Extending Arm to Position Mode
+			//extendDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		}
 		
 		// Check if turbo is activated
@@ -57,21 +66,25 @@ public class DriveMotors extends LinearOpMode {
 		// Setup a variable for each motor
 		double leftPower;
 		double rightPower;
-		double extendPower;
 
 		// Combines drive power and turn power in one expression
 		double drive = -gamepad1.left_stick_y;
-		double turn  =  gamepad1.right_stick_x;
+		double turn  =  gamepad1.left_stick_x;
 		leftPower	= Range.clip(speed * (drive + turn), -1.0, 1.0);
 		rightPower   = Range.clip(speed * (drive - turn), -1.0, 1.0);
 
-		// Tilt left stick forward on 2nd gamepad to extend arm
-		double extend = -gamepad2.left_stick_y;
-		extendPower = Range.clip(extend, -1.0, 1.0);
+		// Set Position for Extend Arm to go to
+		if (gamepad2.dpad_down) {
+			targetPos = 0;
+		}
+		else if (gamepad2.dpad_up) {
+			targetPos = 2;
+		}
 
-		// Send calculated power to wheels
+		// Send calculated power to wheels and arm
 		leftDrive.setPower(leftPower);
 		rightDrive.setPower(rightPower);
-		extendDrive.setPower(extendPower);
+		//extendDrive.setTargetPosition(targetPos);
+		
 	}
 }
