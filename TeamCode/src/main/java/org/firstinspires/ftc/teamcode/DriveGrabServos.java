@@ -14,8 +14,8 @@ public class DriveGrabServos extends LinearOpMode {
 	Gamepad gamepad2;
 	
 	// CONSTANTS
-	final double leftPercent = 0.58;
-	final double rightPercent = 0.42;
+	final double leftPercent = 0.6;
+	final double rightPercent = 0.4;
 	final double leftRestState = 0.48;
 	final double rightRestState = 0.52;
 	
