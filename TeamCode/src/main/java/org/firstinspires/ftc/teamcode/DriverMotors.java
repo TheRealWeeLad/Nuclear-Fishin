@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -21,6 +22,7 @@ public class DriveMotors extends LinearOpMode {
 	// Set speed of driving as a percent of total speed
 	final double DEFAULT_SPEED = 0.5;
 	double speed = DEFAULT_SPEED;
+	double extendSpeed = 0.5;
 	
 	// Store current Extend Arm target position
 	int targetPos = 0;
@@ -33,6 +35,9 @@ public class DriveMotors extends LinearOpMode {
 		leftDrive  = left;
 		rightDrive = right;
 		extendDrive = extend;
+		
+		// Reverse Left Motor
+		leftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 		
 		// Set Extending Arm to Position Mode
 		//extendDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -53,6 +58,9 @@ public class DriveMotors extends LinearOpMode {
 			rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
 			extendDrive = hardwareMap.get(DcMotor.class, "extend_drive");
 			
+			// Reverse Left Motor
+			leftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+			
 			// Set Extending Arm to Position Mode
 			//extendDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 		}
@@ -66,24 +74,29 @@ public class DriveMotors extends LinearOpMode {
 		// Setup a variable for each motor
 		double leftPower;
 		double rightPower;
+		double extendPower;
 
 		// Combines drive power and turn power in one expression
 		double drive = -gamepad1.left_stick_y;
 		double turn  =  gamepad1.left_stick_x;
-		leftPower	= Range.clip(speed * (drive + turn), -1.0, 1.0);
-		rightPower   = Range.clip(speed * (drive - turn), -1.0, 1.0);
+		leftPower	= Range.clip(speed * (drive - turn), -1.0, 1.0);
+		rightPower   = Range.clip(speed * (drive + turn), -1.0, 1.0);
+
+		// Set Extend Power
+		extendPower = Range.clip(extendSpeed * -gamepad2.left_stick_y, -1.0, 1.0);
 
 		// Set Position for Extend Arm to go to
-		if (gamepad2.dpad_down) {
-			targetPos = 0;
-		}
-		else if (gamepad2.dpad_up) {
-			targetPos = 2;
-		}
+		// if (gamepad2.dpad_down) {
+		// 	targetPos = 0;
+		// }
+		// else if (gamepad2.dpad_up) {
+		// 	targetPos = 2;
+		// }
 
 		// Send calculated power to wheels and arm
 		leftDrive.setPower(leftPower);
 		rightDrive.setPower(rightPower);
+		extendDrive.setPower(extendPower);
 		//extendDrive.setTargetPosition(targetPos);
 		
 	}
