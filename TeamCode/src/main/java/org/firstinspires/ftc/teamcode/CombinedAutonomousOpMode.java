@@ -26,11 +26,19 @@ public class CombinedAutonomousOpMode extends LinearOpMode {
 	// Bools for different sections of autonomous control
 	boolean lookingForColor = true;
 	boolean delaying = false;
+	boolean checkingForColor = false;
+	boolean movingToPole = false;
+	boolean rising = false;
+	boolean movingToPoleAgain = false;
+	boolean reversing = false;
 	boolean parking = false;
 	
 	// Time Milestones in ms
 	double moveToSleeveTime = 680;
 	double moveDelay = 3000;
+	double movePoleTime = 500;
+	double riseTime = 500;
+	double movePoleTimeAgain = 100;
 	double parkTimeLeft = 1300;
 	double parkTimeMiddle = 1300;
 	
@@ -63,35 +71,13 @@ public class CombinedAutonomousOpMode extends LinearOpMode {
 			if (lookingForColor) {
 				// Move Forward to Sleeve
 				if (time < moveToSleeveTime * 2.5 / 7) {
-					leftDrive.setPower(0.5);
-					rightDrive.setPower(0.5);
+					forward();
 				}
 				else if (time < moveToSleeveTime) {
-					leftDrive.setPower(0.3);
-					rightDrive.setPower(0.7);
+					left();
 				}
 				else {
-					leftDrive.setPower(0);
-					rightDrive.setPower(0);
-					
-					// Get Color Information
-					NormalizedRGBA colors = colorSensorController.getColors();
-					
-					// Check for greatest color
-					float[] colorsList = {colors.red, colors.green, colors.blue};
-					float max = Math.max(Math.max(colorsList[0], colorsList[1]), colorsList[2]);
-					if (max == colorsList[0]) {
-						parkingDirection = ParkingDirection.LEFT;
-					}
-					else if (max == colorsList[2]) {
-						parkingDirection = ParkingDirection.RIGHT;
-					}
-					else if (max == colorsList[1]) {
-						parkingDirection = ParkingDirection.MIDDLE;
-					}
-					else {
-						parkingDirection = ParkingDirection.MIDDLE;
-					}
+					off();
 					
 					lookingForColor = false;
 					delaying = true;
@@ -101,9 +87,60 @@ public class CombinedAutonomousOpMode extends LinearOpMode {
 			else if (delaying) {
 				if (time > moveDelay) {
 					delaying = false;
-					parking = true;
+					checkingForColor = true;
+				}
+			}
+			else if (checkingForColor) {
+				// Get Color Information
+				NormalizedRGBA colors = colorSensorController.getColors();
+
+				// Check for greatest color
+				float[] colorsList = {colors.red, colors.green, colors.blue};
+				float max = Math.max(Math.max(colorsList[0], colorsList[1]), colorsList[2]);
+				if (max == colorsList[0]) {
+					parkingDirection = ParkingDirection.LEFT;
+				}
+				else if (max == colorsList[2]) {
+					parkingDirection = ParkingDirection.RIGHT;
+				}
+				else if (max == colorsList[1]) {
+					parkingDirection = ParkingDirection.MIDDLE;
+				}
+				else {
+					parkingDirection = ParkingDirection.MIDDLE;
+				}
+				
+				checkingForColor = false;
+				movingToPole = true;
+				runtime.reset();
+			}
+			else if (movingToPole) {
+				if (time < movePoleTime) {
+					forward();
+				}
+				else {
+					movingToPole = false;
+					rising = true;
 					runtime.reset();
 				}
+			}
+			else if (rising) {
+				if (time < riseTime) {
+					extend();
+				}
+				else {
+					extendOff();
+					
+					rising = false;
+					moveToPoleAgain = true;
+					runtime.reset();
+				}
+			}
+			else if (movingToPoleAgain) {
+				if (time < movePoleTimeAgain) {
+					forward();
+				}
+				
 			}
 			else if (parking) {
 				telemetry.addData("Dir: ", parkingDirection);
@@ -128,16 +165,51 @@ public class CombinedAutonomousOpMode extends LinearOpMode {
 		}
 	}
 	
+	void forward() {
+		leftDrive.setPower(0.5);
+		rightDrive.setPower(0.5);
+	}
+	
+	void backward() {
+		leftDrive.setPower(-0.5);
+		rightDrive.setPower(-0.5);
+	}
+	
+	void left() {
+		leftDrive.setPower(0.3);
+		rightDrive.setPower(0.7);
+	}
+	
+	void right() {
+		leftDrive.setPower(0.7);
+		rightDriver.setPower(0.3);
+	}
+	
+	void off() {
+		leftDrive.setPower(0);
+		rightDrive.setPower(0);
+	}
+	
+	void extend() {
+		extendDrive.setPower(0.5);
+	}
+	
+	void retract() {
+		extendDrive.setPower(-0.5);
+	}
+	
+	void extendOff() {
+		extendDrive.setPower(0);
+	}
+	
 	void parkLeft() {
 		if (time < parkTimeLeft / 2) {
 			// Go Straight
-			leftDrive.setPower(0.5);
-			rightDrive.setPower(0.5);
+			forward();
 		}
 		else if (time < parkTimeLeft) {
 			// Move Back to the Right
-			leftDrive.setPower(0.7);
-			rightDrive.setPower(0.3);
+			right();
 		}
 		else {
 			parking = false;
@@ -156,17 +228,14 @@ public class CombinedAutonomousOpMode extends LinearOpMode {
 	void parkMiddle() {
 		if (time < parkTimeMiddle * 2 / 3) {
 			// Turn back to the right
-			leftDrive.setPower(0.7);
-			rightDrive.setPower(0.3);
+			right();
 		}
 		else if (time < parkTimeMiddle) {
 			// Go straight
-			leftDrive.setPower(0.5);
-			rightDrive.setPower(0.5);
+			forward();
 		}
 		else {
-			leftDrive.setPower(0);
-			rightDrive.setPower(0);
+			off();
 			parking = false;
 		}
 	}
