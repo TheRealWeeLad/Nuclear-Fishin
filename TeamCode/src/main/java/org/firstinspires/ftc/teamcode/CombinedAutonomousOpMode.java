@@ -77,23 +77,17 @@ public class CombinedAutonomousOpMode extends LinearOpMode {
 					// Get Color Information
 					NormalizedRGBA colors = colorSensorController.getColors();
 					
-					telemetry.addData("Alpha: ", colors.alpha);
-					telemetry.addData("Red: ", colors.red);
-					telemetry.addData("Green: ", colors.green);
-					telemetry.addData("Blue: ", colors.blue);
-					telemetry.update();
-					
 					// Check for greatest color
 					float[] colorsList = {colors.red, colors.green, colors.blue};
 					float max = Math.max(Math.max(colorsList[0], colorsList[1]), colorsList[2]);
 					if (max == colorsList[0]) {
 						parkingDirection = ParkingDirection.LEFT;
 					}
-					else if (max == colorsList[1]) {
-						parkingDirection = ParkingDirection.MIDDLE;
-					}
 					else if (max == colorsList[2]) {
 						parkingDirection = ParkingDirection.RIGHT;
+					}
+					else if (max == colorsList[1]) {
+						parkingDirection = ParkingDirection.MIDDLE;
 					}
 					else {
 						parkingDirection = ParkingDirection.MIDDLE;
@@ -117,51 +111,63 @@ public class CombinedAutonomousOpMode extends LinearOpMode {
 				
 				switch (parkingDirection) {
 					case LEFT:
-						// Park Left
-						if (time < parkTimeLeft / 2) {
-							// Go Straight
-							leftDrive.setPower(0.5);
-							rightDrive.setPower(0.5);
-						}
-						else if (time < parkTimeLeft) {
-							// Move Back to the Right
-							leftDrive.setPower(0.7);
-							rightDrive.setPower(0.3);
-						}
-						else {
-							parking = false;
-						}
-						break;
+						/* Park Left
+						parkLeft();
+						break; */
+					case RIGHT:
+						/* Park Right
+						parkRight();
+						break;*/
 					default:
 					case MIDDLE:
 						// Park Middle
-						if (time < parkTimeMiddle * 2 / 3) {
-							// Turn back to the right
-							leftDrive.setPower(0.7);
-							rightDrive.setPower(0.3);
-						}
-						else if (time < parkTimeMiddle) {
-							// Go straight
-							leftDrive.setPower(0.5);
-							rightDrive.setPower(0.5);
-						}
-						else {
-							leftDrive.setPower(0);
-							rightDrive.setPower(0);
-							parking = false;
-						}
-						break;
-					case RIGHT:
-						// Park Right
-						if (time < parkTimeMiddle) {
-							
-						}
-						else {
-							parking = false;
-						}
+						parkMiddle();
 						break;
 				}
 			}
+		}
+	}
+	
+	void parkLeft() {
+		if (time < parkTimeLeft / 2) {
+			// Go Straight
+			leftDrive.setPower(0.5);
+			rightDrive.setPower(0.5);
+		}
+		else if (time < parkTimeLeft) {
+			// Move Back to the Right
+			leftDrive.setPower(0.7);
+			rightDrive.setPower(0.3);
+		}
+		else {
+			parking = false;
+		}
+	}
+	
+	void parkRight() {
+		if (time < parkTimeMiddle) {
+			
+		}
+		else {
+			parking = false;
+		}
+	}
+	
+	void parkMiddle() {
+		if (time < parkTimeMiddle * 2 / 3) {
+			// Turn back to the right
+			leftDrive.setPower(0.7);
+			rightDrive.setPower(0.3);
+		}
+		else if (time < parkTimeMiddle) {
+			// Go straight
+			leftDrive.setPower(0.5);
+			rightDrive.setPower(0.5);
+		}
+		else {
+			leftDrive.setPower(0);
+			rightDrive.setPower(0);
+			parking = false;
 		}
 	}
 }
